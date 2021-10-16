@@ -229,7 +229,7 @@ window.addEventListener("click", (e) => {
 });
 
 window.addEventListener("keypress", (e) => {
-  secretString = e.key === "g" ? "g" : e.key;
+  secretString = e.key === "g" ? "g" : secretString + e.key;
   if (secretString === "godmod") {
     let x = 0,
       y = 0;
