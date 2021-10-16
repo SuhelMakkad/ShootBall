@@ -1,3 +1,16 @@
+window.requestAnimFrame = (function () {
+  return (
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function (/* function */ callback, /* DOMElement */ element) {
+      window.setTimeout(callback, 1000 / 60);
+    }
+  );
+})();
+
 const modal = document.querySelector(".modal");
 const scoreElement = document.getElementById("score");
 const modalScoreElement = document.getElementById("modal-score");
@@ -26,7 +39,7 @@ class Player {
 }
 
 class Projectile {
-  constructor(x, y, radius, color, velocity, velocityMultipler, alpha) {
+  constructor(x, y, radius, color, velocity, velocityMultipler) {
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -83,7 +96,10 @@ let player = new Player(canvas.width / 2, canvas.height / 2, 30, "white"),
   projectiles = [],
   particales = [],
   enemies = [],
+  supreModIntervalId,
   intervalId,
+  secretString = "",
+  bulletsColor = "white",
   score = 0;
 
 function init() {
@@ -95,9 +111,12 @@ function init() {
   projectiles = [];
   particales = [];
   enemies = [];
+  secretString = "";
+  bulletsColor = "white";
   score = 0;
 
   clearInterval(intervalId);
+  clearInterval(supreModIntervalId);
   spawnEnemies();
   animate();
 }
@@ -121,7 +140,7 @@ function spawnEnemies() {
       y: Math.sin(angle),
     };
     enemies.push(
-      new Projectile(x, y, radius, `hsl(${Math.random() * 360}, 80%, 80%)`, velocity, 5)
+      new Projectile(x, y, radius, `hsl(${Math.random() * 360}, 80%, 80%)`, velocity, 2)
     );
   }, 1000);
 }
@@ -194,13 +213,37 @@ function animate() {
   });
 }
 
-window.addEventListener("click", (e) => {
-  const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
+function shootNewBullet(x, y) {
+  const angle = Math.atan2(y - player.y, x - player.x);
   const velocity = {
     x: Math.cos(angle),
     y: Math.sin(angle),
   };
-  projectiles.push(new Projectile(player.x, player.y, bulletProjectileRadius, "white", velocity));
+  projectiles.push(
+    new Projectile(player.x, player.y, bulletProjectileRadius, bulletsColor, velocity)
+  );
+}
+
+window.addEventListener("click", (e) => {
+  shootNewBullet(e.clientX, e.clientY);
+});
+
+window.addEventListener("keypress", (e) => {
+  secretString += e.key;
+  if (secretString === "godmod") {
+    let x = 0,
+      y = 0;
+    window.addEventListener("mousemove", (e) => {
+      x = e.clientX;
+      y = e.clientY;
+    });
+    bulletsColor = "#fc6565";
+    player.color = "#fc6565";
+    supreModIntervalId = setInterval(() => {
+      shootNewBullet(x, y);
+    }, 100);
+  }
+  console.log(secretString);
 });
 
 resetButton.addEventListener("click", (e) => {
