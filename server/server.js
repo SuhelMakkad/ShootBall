@@ -18,12 +18,13 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 
-  socket.on("createNewRoom", (gameId, hostName) => {
+  socket.on("createNewRoom", (gameId) => {
     socket.join(gameId);
     console.log("game joined" + gameId);
   });
 
   socket.on("joinRoom", (gameId, playerName) => {
+    socket.join(gameId);
     io.to(gameId).emit("playerJoined", playerName);
   });
 

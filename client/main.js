@@ -227,6 +227,7 @@ function animate() {
             projectiles.splice(projectileIndex, 1);
             score += 250;
             scoreElement.innerHTML = score;
+            socket.emit("updateScore", gameId, score);
           }, 0);
         }
       }
@@ -389,7 +390,7 @@ function copyTextToClipboard(text) {
 }
 
 function createNewRoom() {
-  socket.emit("createNewRoom", gameId, playerName || playerId);
+  socket.emit("createNewRoom", gameId);
 }
 
 function joinNewRoom(roomId, name) {
@@ -403,7 +404,7 @@ function addNewPlayer(name) {
 }
 
 const socket = io("http://localhost:4000");
-// client-side
+
 socket.on("connect", () => {
   playerId = socket.id;
 });
