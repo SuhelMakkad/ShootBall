@@ -7,6 +7,7 @@
 body {
   font-family: "Roboto", sans-serif;
   overflow: hidden;
+  background-color: black;
 }
 
 #results {
@@ -16,13 +17,18 @@ body {
   color: #fff;
   font-size: 1.2rem;
   user-select: none;
+  display: none;
+}
+
+.names {
+  text-transform: capitalize;
 }
 
 .modal {
+  min-height: 18rem;
   max-width: 80%;
   width: 40rem;
 
-  display: none;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -41,18 +47,11 @@ body {
 
 .title {
   text-align: center;
-  font-size: 2rem;
-  font-weight: 500;
+  font-size: 2.2rem;
+  font-weight: 4500;
 }
 
-#modal-score {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 4rem;
-  font-weight: 500;
-}
-
-#resetButton {
+.modal-button {
   font-size: 1.1rem;
   color: #fff;
   display: block;
@@ -60,16 +59,129 @@ body {
   margin: 2.5rem auto;
   padding: 0.5em 0.75em;
 
-  background-color: rgb(93, 93, 233);
-
   outline: none;
   border: none;
   border-radius: 3px;
   cursor: pointer;
+  background-color: rgb(93, 126, 233);
   transition: background-color 250ms ease, border-radius 250ms ease;
+}
+
+.modal-flex {
+  display: flex;
+  gap: 4rem;
+  white-space: nowrap;
+}
+
+/* start game modal */
+
+#singlePlayer {
+  min-width: 10rem;
+  background-color: rgb(93, 126, 233);
+}
+#singlePlayer:hover {
+  border-radius: 6px;
+  background-color: rgb(69, 101, 207);
+}
+
+#multiPlayer {
+  min-width: 10rem;
+  background-color: rgb(233, 126, 93);
+}
+#multiPlayer:hover {
+  border-radius: 6px;
+  background-color: rgb(226, 117, 83);
+}
+
+/* game over modal */
+.score-modal {
+  display: none;
+}
+
+#modalScore {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 500;
+}
+
+#resetButton {
+  background-color: rgb(93, 93, 233);
 }
 
 #resetButton:hover {
   border-radius: 6px;
   background-color: rgb(74, 74, 196);
+}
+
+/* join/create room */
+
+.join-game-modal {
+  display: none;
+  place-items: center;
+}
+
+#joinRoom {
+  min-width: 10rem;
+  background-color: rgb(236, 107, 107);
+}
+#joinRoom:hover {
+  background-color: rgb(224, 96, 96);
+}
+
+#createRoom {
+  min-width: 10rem;
+  background-color: rgb(93, 180, 231);
+}
+#createRoom:hover {
+  border-radius: 6px;
+  background-color: rgb(80, 168, 219);
+}
+.modal-back-button {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+/* room code modal */
+.join-code-modal {
+  display: none;
+}
+
+.room-id-wrapper {
+  margin: 2rem auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 1rem;
+  width: 80%;
+  background-color: rgb(255, 255, 255);
+  border-radius: 4px;
+}
+
+.modal-input {
+  width: 100%;
+  font-size: 1.1rem;
+  border: none;
+  outline: none;
+  text-align: center;
+}
+
+#copyId {
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+#codeModalGameStart {
+  min-width: 5rem;
+  background-color: rgb(247, 128, 107);
+}
+#codeModalGameStart:hover {
+  border-radius: 6px;
+  background-color: rgb(255, 120, 96);
 }

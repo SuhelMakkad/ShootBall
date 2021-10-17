@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
 
@@ -24,19 +24,112 @@
     <link rel="manifest" href="favicon/site.webmanifest" />
   </head>
   <body>
-    <div id="results"><span>Score: </span><span id="score">0</span></div>
+    <div id="results">
+      <span class="names" id="playerNameReults">Score: </span><span id="score">0</span>
+    </div>
 
-    <div class="modal">
+    <div class="modal score-modal">
       <div class="modal-body">
         <p class="title">Score</p>
-        <p id="modal-score">1000</p>
+        <p id="modalScore">0</p>
       </div>
       <div class="modal-footer">
-        <button id="resetButton">Start Again</button>
+        <button class="modal-button" id="resetButton">Start Again</button>
+        <!-- <button id="resetButton">Show Leaderboard</button> -->
+      </div>
+    </div>
+
+    <div class="modal play-mode-modal">
+      <div class="modal-body">
+        <p class="title">Select Player</p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-button" id="singlePlayer">Single Player</button>
+        <button class="modal-button" id="multiPlayer">Multi Player</button>
+      </div>
+    </div>
+
+    <div class="modal join-game-modal">
+      <button class="modal-back-button" id="backtoSelectPlayer">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="#fff"
+        >
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <div class="modal-flex">
+        <button class="modal-button" id="joinRoom">Join Room</button>
+        <button class="modal-button" id="createRoom">Create New Room</button>
+      </div>
+    </div>
+
+    <div class="modal join-code-modal">
+      <button class="modal-back-button" id="backToJoinGame">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="#fff"
+        >
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <div class="modal-body">
+        <p class="title">Room Code</p>
+        <div class="room-id-wrapper">
+          <input
+            type="text"
+            id="playerName"
+            class="modal-input"
+            placeholder="Enter Your Name"
+            spellcheck="false"
+          />
+        </div>
+        <div class="room-id-wrapper">
+          <button id="copyId">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 0 24 24"
+              width="24px"
+              fill="#000000"
+            >
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path
+                d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+              />
+            </svg>
+          </button>
+          <input
+            type="text"
+            class="modal-input"
+            id="roomId"
+            spellcheck="false"
+            placeholder="Enter Room Code"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="codeModalGameStart" class="modal-button">Start</button>
       </div>
     </div>
 
     <canvas id="canvas"></canvas>
+
+    <!-- uuid -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"
+      integrity="sha512-UNM1njAgOFUa74Z0bADwAq8gbTcqZC8Ej4xPSzpnh0l6KMevwvkBvbldF9uR++qKeJ+MOZHRjV1HZjoRvjDfNQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
 
     <!-- sckote.io -->
     <script
