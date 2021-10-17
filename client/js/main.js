@@ -145,27 +145,6 @@ function init() {
   animate();
 }
 
-function initMultiPlayer() {
-  scoreModal.style.display = "none";
-  playModeModal.style.display = "none";
-  joinCodeModal.style.display = "none";
-  scoreElement.innerHTML = 0;
-
-  bulletProjectileRadius = 5;
-  projectiles = [];
-  particales = [];
-  enemies = [];
-  secretString = "";
-  playersColor = "white";
-  score = 0;
-  animationId = null;
-  players = [new Player(canvas.width / 2, canvas.height / 2, 30, playersColor)];
-
-  clearInterval(intervalId);
-  clearInterval(supreModIntervalId);
-  animate();
-}
-
 function spawnEnemies() {
   intervalId = setInterval(() => {
     // enemies radius ranging from 30 to 8
