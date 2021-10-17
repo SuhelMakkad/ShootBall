@@ -27,15 +27,6 @@ const ctx = canvas.getContext("2d");
 const numberOfParticale = 8;
 const getRandomId = uuid.v4;
 
-let isSinglePlayer,
-  playerName,
-  playerId,
-  gameId,
-  isHost = true;
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 class Player {
   constructor(x, y, radius, color, name) {
     this.x = x;
@@ -117,7 +108,15 @@ let bulletProjectileRadius = 5,
   secondPlayerColor = "#a229ff",
   animationId,
   score = 0,
+  isSinglePlayer,
+  playerName,
+  playerId,
+  gameId,
+  isHost = true,
   players = [new Player(canvas.width / 2, canvas.height / 2, 30, playersColor)];
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 function init() {
   scoreModal.style.display = "none";
@@ -195,13 +194,6 @@ function spawnEnemies() {
     );
     isSinglePlayer ? enemies.push(enemy) : socket.emit("addEnemy", gameId, enemy);
   }, 1000);
-}
-
-function handleGameOver() {
-  cancelAnimationFrame(animationId);
-  scoreModal.style.display = "block";
-  modalScoreElement.innerHTML = score;
-  return;
 }
 
 function animate() {
@@ -303,6 +295,9 @@ window.addEventListener("click", (e) => {
 });
 
 window.addEventListener("keypress", (e) => {
+  if (e.key !== "g" || e.key !== "o" || e.key !== "d" || e.key !== "m") {
+    // return;
+  }
   secretString = e.key === "g" ? "g" : secretString + e.key;
   if (secretString === "godmod") {
     let x = 0,
@@ -311,16 +306,18 @@ window.addEventListener("keypress", (e) => {
       x = e.clientX;
       y = e.clientY;
     });
+
     if (isSinglePlayer) {
       playersColor = "#fc6565";
+      players[0].color = playersColor;
     } else {
       if (isHost) {
         playersColor = "#fc6565";
       } else {
         secondPlayerColor = "#fc6565";
       }
+      socket.emit("updatePlayerColors", gameId, [playersColor, secondPlayerColor]);
     }
-    socket.emit("updatePlayerColors", gameId, [playersColor, secondPlayerColor]);
     supreModIntervalId = setInterval(() => {
       shootNewBullet(x, y);
     }, 100);
@@ -369,8 +366,6 @@ joinRoomButton.addEventListener("click", (e) => {
   joinGameModal.style.display = "none";
   joinCodeModal.style.display = "block";
   codeModalGameStart.setAttribute("type", "join");
-  initSocketIo();
-  console.log(socket);
 });
 
 createRoomButton.addEventListener("click", (e) => {
@@ -383,8 +378,6 @@ createRoomButton.addEventListener("click", (e) => {
   const id = getRandomId();
   roomId.value = id;
   gameId = id;
-  initSocketIo();
-  console.log(socket);
 });
 
 copyIdButton.addEventListener("click", (e) => {
@@ -410,114 +403,3 @@ codeModalGameStart.addEventListener("click", (e) => {
 playerNameInput.addEventListener("input", (e) => {
   playerName = e.target.value;
 });
-
-function copyTextToClipboard(text) {
-  if (!navigator.clipboard) {
-    //for browsers with no navigator.clipboard api
-    fallbackCopyTextToClipboard(text);
-    return;
-  }
-  navigator.clipboard.writeText(text).then(
-    function () {},
-    function (err) {
-      console.error("error occure while copying", err);
-    }
-  );
-
-  function fallbackCopyTextToClipboard(text) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-
-    // Avoid scrolling to bottom
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    textArea.style.position = "fixed";
-
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      const successful = document.execCommand("copy");
-      const msg = successful ? "successful" : "unsuccessful";
-    } catch (err) {
-      console.error("error ocuew while copying", err);
-    }
-
-    document.body.removeChild(textArea);
-  }
-}
-
-function createNewRoom() {
-  isHost = true;
-  socket.emit("createNewRoom", gameId);
-}
-
-function joinNewRoom(roomId) {
-  isHost = false;
-  socket.emit("joinRoom", roomId, { width: canvas.width, height: canvas.height });
-}
-
-function addNewPlayer() {
-  players.push(new Player(players[0].x + 40, players[0].y, 30, secondPlayerColor));
-  players[0].x -= 40;
-}
-
-let socket;
-
-function initSocketIo() {
-  socket = io("http://localhost:4000");
-
-  socket.on("connect", () => {
-    playerId = socket.id;
-  });
-
-  socket.on("playerJoined", (canvasSize) => {
-    canvas.width = canvasSize.width;
-    canvas.height = canvasSize.height;
-    players[0].x = canvas.width / 2;
-    players[0].y = canvas.height / 2;
-    addNewPlayer();
-  });
-
-  socket.on("updateScore", (scor) => {
-    score = scor;
-    scoreElement.innerHTML = score;
-  });
-
-  socket.on("addProjectile", (projectile) => {
-    projectiles.push(
-      new Projectile(
-        projectile.x,
-        projectile.y,
-        projectile.radius,
-        projectile.color,
-        projectile.velocity,
-        projectile.velocityMultipler
-      )
-    );
-  });
-
-  socket.on("addEnemy", (enemy) => {
-    enemies.push(
-      new Projectile(
-        enemy.x,
-        enemy.y,
-        enemy.radius,
-        enemy.color,
-        enemy.velocity,
-        enemy.velocityMultipler
-      )
-    );
-  });
-
-  socket.on("updatePlayerColors", (colors) => {
-    colors.forEach((color, index) => {
-      if (players[index].color !== "#fc6565") {
-        players[index].color = color;
-      }
-    });
-  });
-
-  socket.on("gameOver", handleGameOver);
-}
