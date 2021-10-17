@@ -23,13 +23,29 @@ io.on("connection", (socket) => {
     console.log("game joined" + gameId);
   });
 
-  socket.on("joinRoom", (gameId, playerName) => {
+  socket.on("joinRoom", (gameId, canvasSize) => {
     socket.join(gameId);
-    io.to(gameId).emit("playerJoined", playerName);
+    io.to(gameId).emit("playerJoined", canvasSize);
   });
 
   socket.on("updateScore", (gameId, score) => {
     io.to(gameId).emit("updateScore", score);
+  });
+
+  socket.on("gameOver", (gameId) => {
+    io.to(gameId).emit("gameOver");
+  });
+
+  socket.on("addProjectile", (gameId, projectile) => {
+    io.to(gameId).emit("addProjectile", projectile);
+  });
+
+  socket.on("addEnemy", (gameId, enemy) => {
+    io.to(gameId).emit("addEnemy", enemy);
+  });
+
+  socket.on("updatePlayerColors", (gameId, colors) => {
+    io.to(gameId).emit("updatePlayerColors", colors);
   });
 });
 

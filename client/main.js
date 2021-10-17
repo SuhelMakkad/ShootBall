@@ -27,10 +27,11 @@ const ctx = canvas.getContext("2d");
 const numberOfParticale = 8;
 const getRandomId = uuid.v4;
 
-let isSinglePlayer = null,
+let isSinglePlayer,
   playerName,
   playerId,
-  gameId;
+  gameId,
+  isHost = true;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -105,16 +106,18 @@ class Particale {
   }
 }
 
-let players = [new Player(canvas.width / 2, canvas.height / 2, 30, "white")],
-  bulletProjectileRadius = 5,
+let bulletProjectileRadius = 5,
   projectiles = [],
   particales = [],
   enemies = [],
   supreModIntervalId,
   intervalId,
   secretString = "",
-  bulletsColor = "white",
-  score = 0;
+  playersColor = "white",
+  secondPlayerColor = "#a229ff",
+  animationId,
+  score = 0,
+  players = [new Player(canvas.width / 2, canvas.height / 2, 30, playersColor)];
 
 function init() {
   scoreModal.style.display = "none";
@@ -122,18 +125,45 @@ function init() {
   joinCodeModal.style.display = "none";
   scoreElement.innerHTML = 0;
 
-  players = [new Player(canvas.width / 2, canvas.height / 2, 30, "white")];
   bulletProjectileRadius = 5;
   projectiles = [];
   particales = [];
   enemies = [];
   secretString = "";
-  bulletsColor = "white";
+  playersColor = "white";
+  secondPlayerColor = "#a229ff";
   score = 0;
+  animationId = null;
+  players = [new Player(canvas.width / 2, canvas.height / 2, 30, playersColor)];
 
   clearInterval(intervalId);
   clearInterval(supreModIntervalId);
-  spawnEnemies();
+  isHost && spawnEnemies();
+  window.removeEventListener("mousemove", (e) => {
+    x = e.clientX;
+    y = e.clientY;
+  });
+  animate();
+}
+
+function initMultiPlayer() {
+  scoreModal.style.display = "none";
+  playModeModal.style.display = "none";
+  joinCodeModal.style.display = "none";
+  scoreElement.innerHTML = 0;
+
+  bulletProjectileRadius = 5;
+  projectiles = [];
+  particales = [];
+  enemies = [];
+  secretString = "";
+  playersColor = "white";
+  score = 0;
+  animationId = null;
+  players = [new Player(canvas.width / 2, canvas.height / 2, 30, playersColor)];
+
+  clearInterval(intervalId);
+  clearInterval(supreModIntervalId);
   animate();
 }
 
@@ -155,26 +185,36 @@ function spawnEnemies() {
       x: Math.cos(angle),
       y: Math.sin(angle),
     };
-    enemies.push(
-      new Projectile(x, y, radius, `hsl(${Math.random() * 360}, 80%, 80%)`, velocity, 2)
+    const enemy = new Projectile(
+      x,
+      y,
+      radius,
+      `hsl(${Math.random() * 360}, 80%, 80%)`,
+      velocity,
+      2
     );
+    isSinglePlayer ? enemies.push(enemy) : socket.emit("addEnemy", gameId, enemy);
   }, 1000);
+}
+
+function handleGameOver() {
+  cancelAnimationFrame(animationId);
+  scoreModal.style.display = "block";
+  modalScoreElement.innerHTML = score;
+  return;
 }
 
 function animate() {
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const animationId = window.requestAnimationFrame(animate);
+  animationId = window.requestAnimationFrame(animate);
   players.forEach((player, playerIndex) => {
     player.draw();
 
     enemies.forEach((enemy, enemyIndex) => {
       const enemyPlayerDist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
       if (enemyPlayerDist - enemy.radius - player.radius < 1) {
-        cancelAnimationFrame(animationId);
-        scoreModal.style.display = "block";
-        modalScoreElement.innerHTML = score;
-        return;
+        isSinglePlayer ? handleGameOver() : socket.emit("gameOver", gameId);
       }
     });
   });
@@ -219,15 +259,21 @@ function animate() {
           enemy.radius -= 10;
           projectiles.splice(projectileIndex, 1);
           score += 100;
-          scoreElement.innerHTML = score;
-          socket.emit("updateScore", gameId, score);
+          if (isSinglePlayer) {
+            scoreElement.innerHTML = score;
+          } else {
+            socket.emit("updateScore", gameId, score);
+          }
         } else {
           setTimeout(() => {
             enemies.splice(enemyIndex, 1);
             projectiles.splice(projectileIndex, 1);
             score += 250;
-            scoreElement.innerHTML = score;
-            socket.emit("updateScore", gameId, score);
+            if (isSinglePlayer) {
+              scoreElement.innerHTML = score;
+            } else {
+              socket.emit("updateScore", gameId, score);
+            }
           }, 0);
         }
       }
@@ -235,25 +281,25 @@ function animate() {
   });
 }
 
-function shootNewBullet(x, y, playerIndex) {
-  const angle = Math.atan2(y - players[playerIndex].y, x - players[playerIndex].x);
+function shootNewBullet(x, y) {
+  const angle = Math.atan2(y - players[0].y, x - players[0].x);
   const velocity = {
     x: Math.cos(angle),
     y: Math.sin(angle),
   };
-  projectiles.push(
-    new Projectile(
-      players[playerIndex].x,
-      players[playerIndex].y,
-      bulletProjectileRadius,
-      bulletsColor,
-      velocity
-    )
+  const projectile = new Projectile(
+    players[0].x + (isHost ? 0 : 80),
+    players[0].y,
+    bulletProjectileRadius,
+    isHost ? playersColor : secondPlayerColor,
+    velocity
   );
+
+  isSinglePlayer ? projectiles.push(projectile) : socket.emit("addProjectile", gameId, projectile);
 }
 
 window.addEventListener("click", (e) => {
-  shootNewBullet(e.clientX, e.clientY, 0);
+  shootNewBullet(e.clientX, e.clientY);
 });
 
 window.addEventListener("keypress", (e) => {
@@ -265,10 +311,18 @@ window.addEventListener("keypress", (e) => {
       x = e.clientX;
       y = e.clientY;
     });
-    bulletsColor = "#fc6565";
-    players[0].color = "#fc6565";
+    if (isSinglePlayer) {
+      playersColor = "#fc6565";
+    } else {
+      if (isHost) {
+        playersColor = "#fc6565";
+      } else {
+        secondPlayerColor = "#fc6565";
+      }
+    }
+    socket.emit("updatePlayerColors", gameId, [playersColor, secondPlayerColor]);
     supreModIntervalId = setInterval(() => {
-      shootNewBullet(x, y, 0);
+      shootNewBullet(x, y);
     }, 100);
   }
 });
@@ -282,7 +336,9 @@ resetButton.addEventListener("click", (e) => {
 singlePlayerButton.addEventListener("click", (e) => {
   e.stopPropagation();
   topResults.style.display = "block";
-  isSinglePlayer = true;
+  isHost = isSinglePlayer = true;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   init();
 });
 
@@ -313,6 +369,8 @@ joinRoomButton.addEventListener("click", (e) => {
   joinGameModal.style.display = "none";
   joinCodeModal.style.display = "block";
   codeModalGameStart.setAttribute("type", "join");
+  initSocketIo();
+  console.log(socket);
 });
 
 createRoomButton.addEventListener("click", (e) => {
@@ -325,12 +383,13 @@ createRoomButton.addEventListener("click", (e) => {
   const id = getRandomId();
   roomId.value = id;
   gameId = id;
+  initSocketIo();
+  console.log(socket);
 });
 
 copyIdButton.addEventListener("click", (e) => {
   e.stopPropagation();
   copyTextToClipboard(rooomIdInput.value);
-  window.alert("Room code copied, You can start your game while you friends joins you");
 });
 
 codeModalGameStart.addEventListener("click", (e) => {
@@ -340,12 +399,12 @@ codeModalGameStart.addEventListener("click", (e) => {
   topResults.style.display = "block";
   gameId = rooomIdInput.value;
   if (type === "join") {
-    joinNewRoom(gameId, playerName);
     joinCodeModal.style.display = "none";
+    joinNewRoom(gameId);
   } else if (type === "create") {
     createNewRoom();
-    init();
   }
+  init();
 });
 
 playerNameInput.addEventListener("input", (e) => {
@@ -390,32 +449,75 @@ function copyTextToClipboard(text) {
 }
 
 function createNewRoom() {
+  isHost = true;
   socket.emit("createNewRoom", gameId);
 }
 
-function joinNewRoom(roomId, name) {
-  socket.emit("joinRoom", roomId, name);
+function joinNewRoom(roomId) {
+  isHost = false;
+  socket.emit("joinRoom", roomId, { width: canvas.width, height: canvas.height });
 }
 
-function addNewPlayer(name) {
-  console.log(name);
-  players.push(new Player(canvas.width / 2 + 40, canvas.height / 2, 30, "red"));
+function addNewPlayer() {
+  players.push(new Player(players[0].x + 40, players[0].y, 30, secondPlayerColor));
   players[0].x -= 40;
 }
 
-const socket = io("http://localhost:4000");
+let socket;
 
-socket.on("connect", () => {
-  playerId = socket.id;
-});
+function initSocketIo() {
+  socket = io("http://localhost:4000");
 
-socket.on("playerJoined", (name) => {
-  addNewPlayer(name);
-});
+  socket.on("connect", () => {
+    playerId = socket.id;
+  });
 
-socket.on("updateScore", (scor) => {
-  console.log("update" + scor);
-  score = scor;
-  scoreElement.innerHTML = score;
-  console.log({ score, scoreElement });
-});
+  socket.on("playerJoined", (canvasSize) => {
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+    players[0].x = canvas.width / 2;
+    players[0].y = canvas.height / 2;
+    addNewPlayer();
+  });
+
+  socket.on("updateScore", (scor) => {
+    score = scor;
+    scoreElement.innerHTML = score;
+  });
+
+  socket.on("addProjectile", (projectile) => {
+    projectiles.push(
+      new Projectile(
+        projectile.x,
+        projectile.y,
+        projectile.radius,
+        projectile.color,
+        projectile.velocity,
+        projectile.velocityMultipler
+      )
+    );
+  });
+
+  socket.on("addEnemy", (enemy) => {
+    enemies.push(
+      new Projectile(
+        enemy.x,
+        enemy.y,
+        enemy.radius,
+        enemy.color,
+        enemy.velocity,
+        enemy.velocityMultipler
+      )
+    );
+  });
+
+  socket.on("updatePlayerColors", (colors) => {
+    colors.forEach((color, index) => {
+      if (players[index].color !== "#fc6565") {
+        players[index].color = color;
+      }
+    });
+  });
+
+  socket.on("gameOver", handleGameOver);
+}
