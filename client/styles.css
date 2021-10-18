@@ -70,6 +70,7 @@ body {
 .modal-flex {
   display: flex;
   gap: 4rem;
+  flex-wrap: wrap;
   white-space: nowrap;
 }
 
@@ -124,6 +125,7 @@ body {
 #joinRoom {
   min-width: 10rem;
   background-color: rgb(236, 107, 107);
+  margin: 0 auto;
 }
 #joinRoom:hover {
   background-color: rgb(224, 96, 96);
@@ -132,6 +134,7 @@ body {
 #createRoom {
   min-width: 10rem;
   background-color: rgb(93, 180, 231);
+  margin: 0 auto;
 }
 #createRoom:hover {
   border-radius: 6px;
