@@ -1,4 +1,4 @@
-const socket = io("http://localhost:4000");
+const socket = io("https://shoot-ball-329405.du.r.appspot.com/");
 
 function handleGameOver() {
   cancelAnimationFrame(animationId);

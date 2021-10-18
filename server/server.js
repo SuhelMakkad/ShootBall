@@ -6,6 +6,8 @@ const io = require("socket.io")(http, {
   },
 });
 
+const PORT = process.env.PORT || 4000
+
 io.on("connection", (socket) => {
   console.log("A user connected");
 
@@ -49,6 +51,6 @@ io.on("connection", (socket) => {
   });
 });
 
-http.listen(4000, () => {
-  console.log("listening on *:4000");
+http.listen(PORT, () => {
+  console.log("listening on *:" + PORT);
 });
