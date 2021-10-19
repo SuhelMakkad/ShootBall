@@ -2,6 +2,8 @@ const scoreModal = document.querySelector(".modal.score-modal");
 const playModeModal = document.querySelector(".modal.play-mode-modal");
 const joinGameModal = document.querySelector(".modal.join-game-modal");
 const joinCodeModal = document.querySelector(".modal.join-code-modal");
+const leaderboardModal = document.querySelector(".modal.leaderboard-modal");
+const enterPlayerNameModal = document.querySelector(".modal.enter-name-modal");
 
 const scoreElement = document.getElementById("score");
 const modalScoreElement = document.getElementById("modalScore");
@@ -15,10 +17,16 @@ const codeModalGameStart = document.getElementById("codeModalGameStart");
 const copyIdButton = document.getElementById("copyId");
 const joinRoomButton = document.getElementById("joinRoom");
 const createRoomButton = document.getElementById("createRoom");
+const showLeaderboardButton = document.getElementById("showLeaderboardButton");
+const backtoScoreModal = document.getElementById("backtoScoreModal");
+const enterNameButton = document.getElementById("enterNameButton");
+const cancelNameButton = document.getElementById("cancelNameButton");
 
 const topResults = document.getElementById("results");
 const rooomIdInput = document.getElementById("roomId");
+const singlePlayerName = document.getElementById("singlePlayerName");
 const playerNameInput = document.getElementById("playerName");
+const playersList = document.getElementById("playersList");
 
 const playerNameReults = document.getElementById("playerNameReults");
 const canvas = document.getElementById("canvas");
@@ -113,6 +121,7 @@ let bulletProjectileRadius = 5,
   playerId,
   gameId,
   isHost = true,
+  leaderboard = [],
   players = [new Player(canvas.width / 2, canvas.height / 2, 30, playersColor)];
 
 canvas.width = window.innerWidth;
@@ -127,6 +136,7 @@ function init() {
   bulletProjectileRadius = 5;
   projectiles = [];
   particales = [];
+  leaderboard = [];
   enemies = [];
   secretString = "";
   playersColor = "white";
@@ -175,8 +185,15 @@ function spawnEnemies() {
   }, 1000);
 }
 
+function showEnterNameModal() {
+  cancelAnimationFrame(animationId);
+
+  modalScoreElement.innerHTML = score;
+  enterPlayerNameModal.style.display = "block";
+}
+
 function animate() {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   animationId = window.requestAnimationFrame(animate);
   players.forEach((player, playerIndex) => {
@@ -185,7 +202,7 @@ function animate() {
     enemies.forEach((enemy, enemyIndex) => {
       const enemyPlayerDist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
       if (enemyPlayerDist - enemy.radius - player.radius < 1) {
-        isSinglePlayer ? handleGameOver() : socket.emit("gameOver", gameId);
+        isSinglePlayer ? showEnterNameModal() : socket.emit("gameOver", gameId);
       }
     });
   });
@@ -313,6 +330,7 @@ singlePlayerButton.addEventListener("click", (e) => {
   e.stopPropagation();
   topResults.style.display = "block";
   isHost = isSinglePlayer = true;
+  showLeaderboardButton.style.display = "block";
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   init();
@@ -323,6 +341,7 @@ multiPlayerButton.addEventListener("click", (e) => {
   playModeModal.style.display = "none";
   joinGameModal.style.display = "grid";
   isSinglePlayer = false;
+  showLeaderboardButton.style.display = "none";
 });
 
 backtoSelectPlayer.addEventListener("click", (e) => {
@@ -362,6 +381,42 @@ createRoomButton.addEventListener("click", (e) => {
 copyIdButton.addEventListener("click", (e) => {
   e.stopPropagation();
   copyTextToClipboard(rooomIdInput.value);
+});
+
+showLeaderboardButton.addEventListener("click", (e) => {
+  if (!isSinglePlayer) {
+    return;
+  }
+  e.stopPropagation();
+  leaderboardModal.style.display = "block";
+  scoreModal.style.display = "none";
+  playersList.innerHTML = `<li class="leaderboard-players">
+                              <span>Loding...</span>
+                          </li>`;
+  showLeaderboard();
+});
+
+backtoScoreModal.addEventListener("click", (e) => {
+  e.stopPropagation();
+  leaderboardModal.style.display = "none";
+  scoreModal.style.display = "block";
+});
+
+cancelNameButton.addEventListener("click", (e) => {
+  e.stopPropagation();
+  enterPlayerNameModal.style.display = "none";
+  scoreModal.style.display = "block";
+});
+
+enterNameButton.addEventListener("click", (e) => {
+  e.stopPropagation();
+  playerName = singlePlayerName.value;
+  enterPlayerNameModal.style.display = "none";
+  playersList.innerHTML = `<li class="leaderboard-players">
+                              <span>Loding...</span>
+                          </li>`;
+  sendScore({ name: playerName, score });
+  leaderboardModal.style.display = "block";
 });
 
 codeModalGameStart.addEventListener("click", (e) => {

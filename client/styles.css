@@ -10,6 +10,29 @@ body {
   background-color: black;
 }
 
+/* scroll bar */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #292929;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3b3b3b;
+  border-radius: 5px;
+}
+
+* {
+  /* for mozilla */
+  scrollbar-color: #3b3b3b #292929;
+  scrollbar-width: thin;
+}
+
 #results {
   position: absolute;
   top: 10px;
@@ -95,7 +118,7 @@ body {
 }
 
 /* game over modal */
-.score-modal {
+.modal.score-modal {
   display: none;
 }
 
@@ -105,14 +128,31 @@ body {
   font-size: 4rem;
   font-weight: 500;
 }
-
 #resetButton {
+  margin: 0 auto;
+  min-width: 11rem;
   background-color: rgb(93, 93, 233);
 }
 
 #resetButton:hover {
   border-radius: 6px;
   background-color: rgb(74, 74, 196);
+}
+
+#showLeaderboardButton {
+  margin: 0 auto;
+  min-width: 11rem;
+  background-color: rgb(233, 149, 93);
+}
+
+#showLeaderboardButton:hover {
+  border-radius: 6px;
+  background-color: rgb(206, 129, 79);
+}
+
+.score-modal .modal-footer {
+  margin: 1.5rem 0;
+  gap: 2rem;
 }
 
 /* join/create room */
@@ -187,4 +227,58 @@ body {
 #codeModalGameStart:hover {
   border-radius: 6px;
   background-color: rgb(255, 120, 96);
+}
+
+/* leaderboard modal */
+.modal.leaderboard-modal {
+  display: none;
+}
+
+#playersList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 1.75rem 0;
+  font-size: 1.35rem;
+  gap: 1.1rem;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+#crown-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+#crown {
+  width: 46px;
+}
+
+/* enter name modal */
+.modal.enter-name-modal {
+  display: none;
+}
+
+#cancelNameButton {
+  margin: auto auto auto 0;
+  background-color: rgb(250, 93, 93);
+  min-width: 6rem;
+}
+
+#enterNameButton {
+  margin: auto 0 auto auto;
+  min-width: 6rem;
+}
+
+#cancelNameButton:hover {
+  border-radius: 6px;
+  background-color: rgb(255, 120, 96);
+}
+
+#enterNameButton:hover {
+  border-radius: 6px;
+  background-color: rgb(84, 104, 219);
 }

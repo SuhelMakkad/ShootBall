@@ -1,10 +1,39 @@
 const socket = io("https://shoot-ball-329405.du.r.appspot.com/");
 
+function showLeaderboard() {
+  fetch("http://localhost:4000/getLeaderboard")
+    .then((data) => data.json())
+    .then((reults) => {
+      leaderboard = reults;
+      playersList.innerHTML = "";
+      leaderboard.forEach((reult, index) => {
+        const li = document.createElement("li");
+        const span = document.createElement("span");
+        li.classList.add("leaderboard-players");
+
+        const text = `${index + 1}. ${reult.name} - ${reult.score}`;
+        span.innerText = text;
+        li.appendChild(span);
+        playersList.appendChild(li);
+      });
+    });
+}
+
+function sendScore(data) {
+  fetch("http://localhost:4000/setScore", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(showLeaderboard);
+}
+
 function handleGameOver() {
   cancelAnimationFrame(animationId);
   scoreModal.style.display = "block";
   modalScoreElement.innerHTML = score;
-  return;
 }
 
 function copyTextToClipboard(text) {
