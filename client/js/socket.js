@@ -1,7 +1,8 @@
-const socket = io("https://shoot-ball-329405.du.r.appspot.com/");
+const baseURL = "https://shoot-ball-329405.du.r.appspot.com";
+const socket = io(baseURL);
 
 function showLeaderboard() {
-  fetch("http://localhost:4000/getLeaderboard")
+  fetch(baseURL + "/getLeaderboard")
     .then((data) => data.json())
     .then((reults) => {
       leaderboard = reults;
@@ -20,7 +21,7 @@ function showLeaderboard() {
 }
 
 function sendScore(data) {
-  fetch("http://localhost:4000/setScore", {
+  fetch(baseURL + "/setScore", {
     method: "POST",
     headers: {
       Accept: "application/json",
