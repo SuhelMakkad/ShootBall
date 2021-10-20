@@ -62,8 +62,7 @@ io.on("connection", (socket) => {
 });
 
 app.get("/getLeaderboard", async (req, res) => {
-  const uri =
-    "mongodb+srv://admin:97235@cluster0.qvosb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  const uri = "mongodb+srv://admin:97235@cluster0.qvosb.mongodb.net";
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
     await client.connect();
