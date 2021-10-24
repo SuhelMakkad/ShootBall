@@ -411,10 +411,17 @@ cancelNameButton.addEventListener("click", (e) => {
 enterNameButton.addEventListener("click", (e) => {
   e.stopPropagation();
   playerName = singlePlayerName.value;
+
+  if(!playerName) {
+    alert("Please Enter Your Name to Continue!!");
+    return;
+  }
+
   enterPlayerNameModal.style.display = "none";
   playersList.innerHTML = `<li class="leaderboard-players">
                               <span>Loding...</span>
                           </li>`;
+  
   sendScore({ name: playerName, score });
   leaderboardModal.style.display = "block";
 });
