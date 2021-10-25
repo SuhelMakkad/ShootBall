@@ -248,6 +248,7 @@ body {
   gap: 1.1rem;
   max-height: 50vh;
   overflow: auto;
+  text-transform: capitalize;
 }
 
 #crown-wrapper {
