@@ -97,6 +97,44 @@ app.post("/setScore", async (req, res) => {
   }
 });
 
+//for flappy bird app
+
+app.get("/flappy/getLeaderboard", async (req, res) => {
+  const uri = "mongodb+srv://admin:97235@cluster0.qvosb.mongodb.net";
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  try {
+    await client.connect();
+    const leaderboardCollection = client.db("flappy").collection("leaderboard");
+    const leaderboard = await leaderboardCollection.find().sort({ score: -1 }).limit(10);
+    leaderboard.toArray((err, result) => {
+      if (err) res.send(err);
+      return res.send(result);
+    });
+  } catch (e) {
+    console.error(e);
+    return res.send("Somthing went wrong");
+  }
+});
+
+app.post("/flappy/setScore", async (req, res) => {
+  const uri =
+    "mongodb+srv://admin:97235@cluster0.qvosb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  try {
+    const data = { name: req.body.name, score: parseInt(req.body.score) };
+    if (isNaN(data.score)) {
+      return res.send({ status: "FAILED", message: "Plase Enter Valide Score" });
+    }
+    await client.connect();
+    const leaderboardCollection = client.db("flappy").collection("leaderboard");
+    leaderboardCollection.insertOne(data);
+    return res.send({ status: "SUCCESS", message: "Score saved" });
+  } catch (e) {
+    console.error(e);
+    return res.send("Somthing went wrong");
+  }
+});
+
 http.listen(PORT, () => {
   console.log("listening on *:" + PORT);
 });
