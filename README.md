@@ -5,4 +5,4 @@
 ##### Play with your friend with multiplayer mode (for now only suppoerts 2 players).
 ##### Used Technologies: express JS, socket.io
 
-[Show Me](https://shoot-ball.vercel.app/)
+[Show Me](https://suhelmakkad.github.io/ShootBall/client/)
